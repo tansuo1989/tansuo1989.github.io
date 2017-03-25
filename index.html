@@ -29,18 +29,20 @@
  </div>	
 
 <div class="row pb">
-	<div class="col-md-2">
+	<div class="col-md-2 col-xs-6">
 		<button class="btn btn-default mr" @click="show()">添 加</button>	
 		<button class="btn btn-info mr" @click="admin()">管理</button>
 	</div>
+	<div class="col-md-2 col-md-offset-2 col-xs-6">   
+    		<input type="button" class="btn btn-danger" value="清除所有" @click="clear()">
+    </div>
+
     <div class="col-md-6" style="line-height:3rem; ">
        可用空间：
     	<progress :value="size" max="2048"></progress>
     	({{size+"/"+2048}})
     </div>
-    <div class="col-md-2">   
-    		<input type="button" class="btn btn-danger" value="清除所有" @click="clear()">
-    </div>
+    
 </div>
 
  <div class="row" v-show="status">
