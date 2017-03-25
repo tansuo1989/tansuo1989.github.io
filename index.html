@@ -150,6 +150,7 @@ new Vue({
 		  	 if(this.f.time==this.list[i]['time']){num=i;break;}
 		  }
 		  this.f.time=new Date().getTime();
+		  this.f.status="";
 		  this.list.splice(num,i,this.clone(this.f));
 		  this.save();
 		  this.status=0;
