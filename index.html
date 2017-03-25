@@ -11,6 +11,7 @@
 .content{min-height: 10rem;}
 .pb{padding-bottom: 1rem;}
 .tag{float: right;}
+.mr{margin-right: 5px;}
 </style>
 </head>
 <body>
@@ -28,11 +29,9 @@
  </div>	
 
 <div class="row pb">
-	<div class="col-md-1">
-		<button class="btn btn-default" @click="show()">添 加</button>	
-	</div>
-	<div class="col-md-1">
-		<button class="btn btn-info" @click="admin()">管理</button>
+	<div class="col-md-2">
+		<button class="btn btn-default mr" @click="show()">添 加</button>	
+		<button class="btn btn-info mr" @click="admin()">管理</button>
 	</div>
     <div class="col-md-6" style="line-height:3rem; ">
        可用空间：
