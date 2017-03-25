@@ -1,56 +1,150 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zn-ch">
 <head>
 <meta charset="UTF-8">
-<title>测试</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>离线笔记应用</title>
 <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <style>
-.gray{color:#ddd;}	
-.mypic img{width:200px;margin:3px;}
+.center{text-align: center;}	
+.content{min-height: 10rem;}
+.pb{padding-bottom: 1rem;}
+.tag{float: right;}
 </style>
 </head>
-<body class="container">
+<body>
+<div class="container" id="app">
 
-<div class="row"><h1>生成日历</h1></div>
-<div class="row mytable"></div>
+<ul class="nav nav-tabs">
+   <li class="active"><a href="/">离线笔记应用</a><li>
+   <li><a href="/smalljs.html">smallJS's DEMO</a></li>
+</ul>
 
-<div class="row">
-	<h1>日期选择器</h1>
+ <div class="row center">
+ 		<h1>离线笔记应用</h1>
+ 	</div>	
+ <div class="row center">
+ 		<p>注意：本笔记只保存在浏览器中，若你清除了浏览器的缓存，则笔记数据会丢失！</p>
+ </div>	
+
+<div class="row pb">
+	<div class="col-md-2">
+		<button class="btn btn-default" @click="show()">添 加</button>	
+	</div>
+    <div class="col-md-6" style="line-height:3rem; ">
+       可用空间：
+    	<progress :value="size" max="2048"></progress>
+    	({{size+"/"+2048}})
+    </div>
 </div>
 
-<div class="show"></div>
+ <div class="row" v-show="status">
+ <div class="col-md-12">
+ <form role="form">
+  <div class="form-group">
+    <label >标题</label>
+    <input type="text" class="form-control" placeholder="选填" v-model="f.title">
+  </div>
 
-<div class="row">
-	<h1>图片预览</h1>
+  <div class="form-group">
+    <label>笔记内容</label>
+    <textarea class="form-control content" placeholder="笔记内容，必填" v-model="f.content"></textarea>
+  </div>
+ 
+  <div class="form-group">
+    <label>标签</label>
+    <input type="text" class="form-control" v-model="f.tag">
+  </div>
+
+   <input type="button" class="btn btn-success" value="确 定" @click="sub()">
+   <input type="button" class="btn danger" value="清除所有" @click="clear()">
+</form>
 </div>
-<div class="row mypic">
-	<img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1490337002267&di=99a8cc490da83badf10879c83c663ce7&imgtype=0&src=http%3A%2F%2Fp2.ifengimg.com%2Fcmpp%2F2016%2F11%2F01%2F11%2F3b4371b2-3ea8-43ea-943b-a88dc138babd_size92_w500_h750.jpg" alt="">
-	<img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1490337002267&di=bfb7c54707f120a7a4a7c8a6d580e688&imgtype=0&src=http%3A%2F%2Fwww.haonanren.cm%2Fuploads%2Fallimg%2F170322%2F30_170322151550_1.jpg" alt="">
-	<img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1490337002267&di=97c55d1b129e5861523463dd03fb5e34&imgtype=0&src=http%3A%2F%2Fd.5857.com%2Fliyitong_170217%2Fdesk_004.jpg" alt="">
-	<img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1490337002266&di=2d411b68ecdd8b179f7e2c11818f66a7&imgtype=0&src=http%3A%2F%2Fp2.ifengimg.com%2Fcmpp%2F2016%2F10%2F18%2F13%2F77ca3195-4a1f-4128-a1dc-6d37fb23061f_size80_w500_h748.jpg" alt="">
-	<img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1490337002265&di=01445a1236b36a23d2f355047bf323ca&imgtype=0&src=http%3A%2F%2Fdynamic-image.yesky.com%2F740x-%2FuploadImages%2F2016%2F030%2F41%2FTM915632M79O.jpg" alt="">
+ </div>
+
+<div class="row" style="padding-top: 2rem;">
+	<div class="col-md-12">
+		<ul class="list-group">
+			<li class="list-group-item" v-for="v in list">
+			<span class="badge">{{v.time|mytime}}</span>
+			<h4 class="list-group-item-heading" @click="showp(v)">
+            {{v.title}}
+            </h4>
+            
+			<p class="list-group-item-text" v-show="v.status==1">
+            {{v.content}}
+            <span class="tag">{{v.tag}}</span>
+            </p>
+			</li>
+		</ul>
+	</div>
 </div>
 
-
-
-
-
-
-<script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>	
-<script src="./get_calendar.js"></script>
-<script src="selectDay.js"></script>
-<script src="./scanPic.js"></script>	
+</div>	
 </body>
 </html>
-
+<script src="https://cdn.bootcss.com/vue/2.2.4/vue.min.js"></script>
 <script>
-//生成日历
-var str=get_calendar("2017-5");
-$(".mytable").html(str);	
 
-//日期选择器
-$(".show").selectDay();
-
-//图片预览
-$(".mypic").scanPic();
+new Vue({
+	el:"#app",
+	data:{
+		f:{title:"",content:"",tag:"",time:"",status:""},
+		status:0,
+		list:[],
+		size:0,
+	},
+	created:function(){
+		this.getlist();
+		this.size=this.getsize().toFixed(2);
+	},
+	filters:{
+		mytime:function(d){
+          var time=new Date(d);
+          var m=time.getMonth()+1;
+          var d=time.getDate();
+          var h=time.getHours();
+          var min=time.getMinutes();
+          return m+"-"+d+" "+h+":"+min;
+		}
+	},
+	methods:{
+		show:function(){
+         this.status=this.status==0?1:0;
+		},
+		sub:function(){
+			this.f.time=new Date().getTime();
+			var tem=this.clone(this.f);
+			this.list.unshift(tem);
+			localStorage.list=JSON.stringify(this.list);
+			this.size=this.getsize().toFixed(2);
+		},
+		getlist:function(){
+		  var list=localStorage.list||"";
+          this.list=list?JSON.parse(list):[];
+		},
+		clone:function(obj){
+			var re={};
+			for(var i in obj){
+				re[i]=obj[i];
+			}
+			return re;
+		},
+		clear:function(){
+			if(!confirm("清除数据后，所有笔记的内容都将被删除，确定清除吗？")){return false;}
+			localStorage.clear();
+		},
+		getsize:function(){
+			var size=0;
+			for(var i in localStorage){
+				size+=localStorage[i].length;
+			}
+			return size/1024;
+		},
+		showp:function(v){
+			v.status=v.status?"":1;
+			console.log(v);
+		}
+	}
+})	
 </script>
