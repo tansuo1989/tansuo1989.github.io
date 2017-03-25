@@ -129,20 +129,20 @@ new Vue({
          this.status=this.status==0?1:0;
 		},
 		save:function(tem){
-			if(tem){this.list.unshift(tem);}
 			localStorage.list=JSON.stringify(this.list);
 			this.size=this.getsize().toFixed(2);
 		},
 		sub:function(){
 			if(!this.f.title){alert("标题不能为空");return;}
 			if(!this.f.content){alert("内容不能为空");return;}
-			if(this.f.time){this.subedit();return false;}
-
-			this.f.time=new Date().getTime();
-			var tem=this.clone(this.f);
-			this.save(tem);
-			this.reset();
-			this.status=0;
+			if(this.f.time){this.subedit();return false;}else{
+				this.f.time=new Date().getTime();
+				var tem=this.clone(this.f);
+				this.list.unshift(tem);
+				this.save();
+				this.reset();
+				this.status=0;	
+			}
 		},
 		subedit:function(){
 		  var num=0;
