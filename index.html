@@ -64,6 +64,7 @@
   </div>
 
    <input type="button" class="btn btn-success" value="确 定" @click="sub()">
+   <input type="button" class="btn btn-danger" value="清 除" @click="reset()">
 </form>
 </div>
  </div>
@@ -185,7 +186,14 @@ new Vue({
 		},
 		edit:function(v){
 			this.status=1;
-			this.f=v;
+			for(var i in v){
+				this.f[i]=v[i];
+			}
+		},
+		reset:function(){
+		  for(var i in this.f){
+		  	 this.f[i]="";
+		  }
 		}
 	}
 })	
