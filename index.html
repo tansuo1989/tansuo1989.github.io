@@ -147,11 +147,11 @@ new Vue({
 		subedit:function(){
 		  var num=0;
 		  for(var i in this.list){
-		  	 if(this.f.time==this.list[i]['time']){num=i;break;}
+		  	 if(this.f.time==this.list[i]['time']){num=i;}
+		  	 this.list[i]['status']="";
 		  }
 		  this.f.time=new Date().getTime();
-		  this.f.status="";
-		  this.list.splice(num,i,this.clone(this.f));
+	  	  this.list.splice(num,1,this.clone(this.f));
 		  this.save();
 		  this.status=0;
 		  this.reset();
@@ -196,6 +196,7 @@ new Vue({
 		},
 		edit:function(v){
 			this.status=1;
+			v.status="";
 			this.f=this.clone(v);
 		},
 		reset:function(){
