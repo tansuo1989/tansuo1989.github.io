@@ -28,13 +28,19 @@
  </div>	
 
 <div class="row pb">
-	<div class="col-md-2">
+	<div class="col-md-1">
 		<button class="btn btn-default" @click="show()">添 加</button>	
+	</div>
+	<div class="col-md-1">
+		<button class="btn btn-info" @click="admin()">管理</button>
 	</div>
     <div class="col-md-6" style="line-height:3rem; ">
        可用空间：
     	<progress :value="size" max="2048"></progress>
     	({{size+"/"+2048}})
+    </div>
+    <div class="col-md-2">   
+    		<input type="button" class="btn btn-danger" value="清除所有" @click="clear()">
     </div>
 </div>
 
@@ -43,7 +49,7 @@
  <form role="form">
   <div class="form-group">
     <label >标题</label>
-    <input type="text" class="form-control" placeholder="选填" v-model="f.title">
+    <input type="text" class="form-control" placeholder="标题必填" v-model="f.title">
   </div>
 
   <div class="form-group">
@@ -57,7 +63,6 @@
   </div>
 
    <input type="button" class="btn btn-success" value="确 定" @click="sub()">
-   <input type="button" class="btn danger" value="清除所有" @click="clear()">
 </form>
 </div>
  </div>
@@ -65,16 +70,19 @@
 <div class="row" style="padding-top: 2rem;">
 	<div class="col-md-12">
 		<ul class="list-group">
-			<li class="list-group-item" v-for="v in list">
+			<li class="list-group-item" v-for="(v,i) in list">
 			<span class="badge">{{v.time|mytime}}</span>
 			<h4 class="list-group-item-heading" @click="showp(v)">
             {{v.title}}
+             <button class="btn btn-info" v-show="ed" @click="edit(v)">编辑</button>
+             <button class="btn btn-danger" v-show="ed" @click="del(i)">删除</button>
             </h4>
             
 			<p class="list-group-item-text" v-show="v.status==1">
             {{v.content}}
             <span class="tag">{{v.tag}}</span>
             </p>
+
 			</li>
 		</ul>
 	</div>
@@ -85,6 +93,7 @@
 </html>
 <script src="https://cdn.bootcss.com/vue/2.2.4/vue.min.js"></script>
 <script>
+//可以考虑添加一个导出与导入的功能
 
 new Vue({
 	el:"#app",
@@ -93,6 +102,7 @@ new Vue({
 		status:0,
 		list:[],
 		size:0,
+		ed:"",
 	},
 	created:function(){
 		this.getlist();
@@ -112,12 +122,27 @@ new Vue({
 		show:function(){
          this.status=this.status==0?1:0;
 		},
+		save:function(){
+			localStorage.list=JSON.stringify(this.list);
+			this.size=this.getsize().toFixed(2);
+		},
 		sub:function(){
+			if(!this.f.title){alert("标题不能为空");return;}
+			if(!this.f.content){alert("内容不能为空");return;}
+			if(this.f.time){this.subedit();return false;}
+
 			this.f.time=new Date().getTime();
 			var tem=this.clone(this.f);
 			this.list.unshift(tem);
-			localStorage.list=JSON.stringify(this.list);
-			this.size=this.getsize().toFixed(2);
+			this.save();
+		},
+		subedit:function(){
+		  var num=0;
+		  for(var i in this.list){
+		  	 if(this.f.time==this.list[i]['time']){num=i;break;}
+		  }
+		  this.list.splice(num,i);
+		  this.save();
 		},
 		getlist:function(){
 		  var list=localStorage.list||"";
@@ -144,6 +169,18 @@ new Vue({
 		showp:function(v){
 			v.status=v.status?"":1;
 			console.log(v);
+		},
+		admin:function(){
+			this.ed=this.ed?"":1;
+		},
+		del:function(i){
+			if(!confirm("确定要删除吗？")){return false;}
+			this.list.splice(i,1);
+			this.save();
+		},
+		edit:function(v){
+			this.status=1;
+			this.f=v;
 		}
 	}
 })	
