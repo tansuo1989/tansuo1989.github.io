@@ -127,7 +127,8 @@ new Vue({
 		show:function(){
          this.status=this.status==0?1:0;
 		},
-		save:function(){
+		save:function(tem){
+			if(tem){this.list.unshift(tem);}
 			localStorage.list=JSON.stringify(this.list);
 			this.size=this.getsize().toFixed(2);
 		},
@@ -138,16 +139,21 @@ new Vue({
 
 			this.f.time=new Date().getTime();
 			var tem=this.clone(this.f);
-			this.list.unshift(tem);
-			this.save();
+			this.save(tem);
+			this.reset();
+			this.status=0;
 		},
 		subedit:function(){
 		  var num=0;
 		  for(var i in this.list){
 		  	 if(this.f.time==this.list[i]['time']){num=i;break;}
 		  }
-		  this.list.splice(num,i);
+		  this.f.time=new Date().getTime();
+		  this.list[num]=this.clone(this.f);
 		  this.save();
+		  this.reset();
+		  this.status=0;
+		  this.ed="";
 		},
 		getlist:function(){
 		  var list=localStorage.list||"";
@@ -174,7 +180,6 @@ new Vue({
 		},
 		showp:function(v){
 			v.status=v.status?"":1;
-			console.log(v);
 		},
 		admin:function(){
 			this.ed=this.ed?"":1;
@@ -186,9 +191,8 @@ new Vue({
 		},
 		edit:function(v){
 			this.status=1;
-			for(var i in v){
-				this.f[i]=v[i];
-			}
+			v.status=0;
+			this.f=this.clone(v);
 		},
 		reset:function(){
 		  for(var i in this.f){
