@@ -37,7 +37,7 @@
     		<input type="button" class="btn btn-danger" value="清除所有" @click="clear()">
     </div>
 
-    <div class="col-md-6" style="line-height:3rem; ">
+    <div class="col-md-6 col-xs-12" style="line-height:3rem; ">
        可用空间：
     	<progress :value="size" max="2048"></progress>
     	({{size+"/"+2048}})
