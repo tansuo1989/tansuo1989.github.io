@@ -160,6 +160,7 @@ new Vue({
 		clear:function(){
 			if(!confirm("清除数据后，所有笔记的内容都将被删除，确定清除吗？")){return false;}
 			localStorage.clear();
+			this.list=[];
 		},
 		getsize:function(){
 			var size=0;
