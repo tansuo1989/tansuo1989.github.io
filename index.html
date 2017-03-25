@@ -149,10 +149,10 @@ new Vue({
 		  	 if(this.f.time==this.list[i]['time']){num=i;break;}
 		  }
 		  this.f.time=new Date().getTime();
-		  this.list[num]=this.clone(this.f);
+		  this.list.splice(num,i,this.clone(this.f));
 		  this.save();
-		  this.reset();
 		  this.status=0;
+		  this.reset();
 		  this.ed="";
 		},
 		getlist:function(){
@@ -180,6 +180,7 @@ new Vue({
 		},
 		showp:function(v){
 			v.status=v.status?"":1;
+			console.log(v);
 		},
 		admin:function(){
 			this.ed=this.ed?"":1;
@@ -191,7 +192,6 @@ new Vue({
 		},
 		edit:function(v){
 			this.status=1;
-			v.status=0;
 			this.f=this.clone(v);
 		},
 		reset:function(){
