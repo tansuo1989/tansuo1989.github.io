@@ -112,6 +112,8 @@ new Vue({
 	created:function(){
 		this.getlist();
 		var size=this.getsize();
+		console.log(size);
+
 		this.size=size>0?size.toFixed(2):0;
 	},
 	filters:{
@@ -178,7 +180,7 @@ new Vue({
 			var tem=localStorage;
 			if(!tem){return 0;}
 			for(var i in tem){
-				size+=tem[i].length;
+				size+=tem[i].length>0?tem[i].length:0;
 			}
 			return size/1024;
 		},
