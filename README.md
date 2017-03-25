@@ -1,2 +1,3 @@
 # tansuo1989.github.io
-测试一下
+
+放smallJS的demo吧

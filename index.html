@@ -2,157 +2,55 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Just demo!</title>
-<link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<title>测试</title>
+<link rel="stylesheet" href="http://apps.bdimg.com/libs/bootstrap/3.3.4/css/bootstrap.css">
 <style>
-.caption{height:8rem;}	
-.center{text-align:center;}
+.gray{color:#ddd;}	
+.mypic img{width:200px;margin:3px;}
 </style>
 </head>
-<body>
-<div class="container" id="app">
+<body class="container">
+
+<div class="row"><h1>生成日历</h1></div>
+<div class="row mytable"></div>
 
 <div class="row">
-	<div class="col-md-6 col-md-offset-3">
-		<h1 class="center">Just demo!</h1>
-	</div>
+	<h1>日期选择器</h1>
 </div>
 
-<div class="row"><h1>图片新闻</h1></div>
-
-<div class="row" >
- <div class="col-md-3" v-for="v in all">
-    <a class="thumbnail" :href="v.url" target="_blank">
-            <img :src="v.img" :alt="v.title">
-            <div class="caption">
-                <h3>{{v.title}}</h3>
-            </div>
-   </a>
- </div>	
-</div>
-
-<div class="row" >
- <template v-for="vv in list">
- <div class="col-md-3" v-for="v in vv.pics">
-    <a class="thumbnail" :href="v.url" target="_blank">
-            <img :src="v.img" :alt="v.title">
-            <div class="caption">
-                <h3>{{v.title}}</h3>
-            </div>
-   </a>
- </div>	
- </template>
-</div>
-
-<!-- 历史 -->
-<div class="row"><h1>历史新闻</h1></div>
+<div class="show"></div>
 
 <div class="row">
- <div class="col-md-6 list-group">
-
-    <a :href="v.newsurl" class="list-group-item" target="_blank" v-for="v in news">
-        <h4 class="list-group-item-heading">
-            {{v.newstitle}}
-        </h4>
-        <p class="list-group-item-text">{{v.pdate}}--来自：{{v.src}}</p>
-    </a>
-    
-
- </div>	
-
- <div class="col-md-6 list-group">
-
- 	<div class="row list-group-item" v-for="v in imgs">
- 		<div class="col-md-9">
-		 	<a :href="v.newsurl" target="_blank">
-		        <h4 class="list-group-item-heading">
-		            {{v.newstitle}}
-		        </h4>
-		    </a>
-		    <p class="list-group-item-text">{{v.pdate}}--来自：{{v.src}}</p>		
- 		</div>
- 		<div class="col-md-3">
- 			<div class="thumbnail">
- 				<img :src="v.imgurl" alt="">
- 			</div>
- 		</div>
- 	</div>
-    
-
- </div>
+	<h1>图片预览</h1>
+</div>
+<div class="row mypic">
+	<img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1490337002267&di=99a8cc490da83badf10879c83c663ce7&imgtype=0&src=http%3A%2F%2Fp2.ifengimg.com%2Fcmpp%2F2016%2F11%2F01%2F11%2F3b4371b2-3ea8-43ea-943b-a88dc138babd_size92_w500_h750.jpg" alt="">
+	<img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1490337002267&di=bfb7c54707f120a7a4a7c8a6d580e688&imgtype=0&src=http%3A%2F%2Fwww.haonanren.cm%2Fuploads%2Fallimg%2F170322%2F30_170322151550_1.jpg" alt="">
+	<img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1490337002267&di=97c55d1b129e5861523463dd03fb5e34&imgtype=0&src=http%3A%2F%2Fd.5857.com%2Fliyitong_170217%2Fdesk_004.jpg" alt="">
+	<img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1490337002266&di=2d411b68ecdd8b179f7e2c11818f66a7&imgtype=0&src=http%3A%2F%2Fp2.ifengimg.com%2Fcmpp%2F2016%2F10%2F18%2F13%2F77ca3195-4a1f-4128-a1dc-6d37fb23061f_size80_w500_h748.jpg" alt="">
+	<img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1490337002265&di=01445a1236b36a23d2f355047bf323ca&imgtype=0&src=http%3A%2F%2Fdynamic-image.yesky.com%2F740x-%2FuploadImages%2F2016%2F030%2F41%2FTM915632M79O.jpg" alt="">
 </div>
 
 
 
 
-</div>
 
-<script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>	
-<script src="https://cdn.bootcss.com/vue/2.2.4/vue.min.js"></script>
-<script>
 
-new Vue({
-	el:"#app",
-	data:{
-     news:"",
-     imgs:"",
-     list:"",
-     all:"",
-	},
-	created:function(){
-	 this.getlishi();
-	 this.getnews();
-	 this.getall();
-	},
-	methods:{
-	getall:function(){
-    	var url="http://sh.qihoo.com/api/lmapi.json";
-    	var _this=this;
-    	$.ajax({
-    		url:url,
-    		dataType:"jsonp",
-    		success:function(d){
-    			//console.log(d);
-    		  if(d.length>0){
-                _this.all=d;
-    		  }	
-    		}
-    	})
-    },	
-    getnews:function(){
-    	var url="http://sh.qihoo.com/api/lmapi.json?type=reso";
-    	var _this=this;
-    	$.ajax({
-    		url:url,
-    		dataType:"jsonp",
-    		success:function(d){
-    			//console.log(d);
-    		  if(d.length>0){
-                _this.list=d;
-    		  }	
-    		}
-    	})
-    },
-    getlishi:function(){
-    	var url="http://sh.qihoo.com/api/sort_new_2015.json?callback=callback&f=jsonp&c=lishi";
-    	var _this=this;
-	    $.ajax({
-			url:url,
-			dataType:"jsonp",
-			success:function(d){
-				
-			if(d.msg=="succ"){
-				//console.log(d);
-				_this.news=d.data.lishi.list;
-				_this.imgs=d.data.lishi.img;
-			}		
-		   }
-	    })
-    }
-	}
-})
-</script>
-
+<script src="http://apps.bdimg.com/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="./get_calendar.js"></script>
+<script src="selectDay.js"></script>
+<script src="./scanPic.js"></script>	
 </body>
 </html>
+
+<script>
+//生成日历
+var str=get_calendar("2017-5");
+$(".mytable").html(str);	
+
+//日期选择器
+$(".show").selectDay();
+
+//图片预览
+$(".mypic").scanPic();
+</script>
