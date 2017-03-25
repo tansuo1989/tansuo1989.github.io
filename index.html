@@ -96,6 +96,9 @@
 <script>
 //可以考虑添加一个导出与导入的功能
 
+if(!window.localStorage){alert("你的浏览器不能使用该应用");}
+
+
 new Vue({
 	el:"#app",
 	data:{
