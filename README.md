@@ -1,3 +1,5 @@
 # tansuo1989.github.io
 
-放smallJS的demo吧
+##index.html 离线笔记应用  
+
+##smalljs.html smallJS的demo
