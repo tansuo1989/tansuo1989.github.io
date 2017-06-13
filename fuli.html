@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>每年定投复利计算</title>
+<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.bootcss.com/vue/2.3.3/vue.min.js"></script>
+<style>
+h3{text-align: center;}	
+</style>
+</head>
+<body>
+<div class="container" id="app">
+
+<ul class="nav nav-tabs">
+   <li><a href="/">离线笔记应用</a><li>
+   <li class="active"><a href="/fuli.html">复利计算器</a><li>
+</ul>
+
+<div class="row">
+	<h3>每年定投复利计算</h3>
+</div>
+<div class="row" style="margin-top: 5rem;">
+ <div class="col-md-3"><input type="text" class="form-control" placeholder="定投金额" v-model="money"></div>
+ <div class="col-md-3"><input type="text" class="form-control" placeholder="年利率" v-model="ll"></div>
+ <div class="col-md-3"><input type="text" class="form-control" placeholder="年份" v-model="year"></div>
+ <div class="col-md-3"><input type="button" class="btn btn-success" value="确定" @click="count()"></div>
+</div>	
+
+<div class="row">
+	<table class="table">
+		<tr>
+			<th>年份</th>
+			<th>本金</th>
+			<th>利息</th>
+			<th>本息</th>
+		</tr>
+		<tr v-for="(v,i) in list">
+			<td>{{list.length-i}}</td>
+			<td>{{v.old}}</td>
+			<td>{{v.lixi}}</td>
+			<td>{{v.total}}</td>
+		</tr>
+	</table>
+</div>
+
+</div>	
+</body>
+</html>
+
+<script>
+
+
+new Vue({
+	el:"#app",
+	data:{
+      list:[],
+      money:"",
+      ll:"",
+      year:"",
+	},
+	methods:{
+		count:function(){
+		   this.list=[];
+           var prev={
+            old:this.money,
+            lixi:this.money*this.ll/100,
+            total:this.money*(1+this.ll/100),
+           };
+           var money=this.money;
+           for(var i=0;i<this.year;i++){
+           	this.list.unshift(prev);
+           	 var bj=parseFloat(prev.total)+parseInt(money);
+           	 prev={
+           	 	old:bj,
+           	 	lixi:(bj*this.ll/100).toFixed(4),
+           	 	total:(bj*(1+this.ll/100)).toFixed(4)
+           	 };
+           }
+		},
+	}
+})	
+</script>
