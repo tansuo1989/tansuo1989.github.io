@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>手机号码归属地查询</title>
+<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+
+<ul class="nav nav-tabs">
+   <li class="active"><a href="/">离线笔记应用</a><li>
+   <li><a href="/fuli.html">复利计算器</a><li>
+   <li><a href="/phone.html">手机号码归属地查询</a></li>
+</ul>
+
+	<div class="row" style="margin:1rem -15px;">
+		<div class="col-md-12"><h3>手机号码归属地查询</h3></div>
+	</div>
+    <div class="row">
+    	<div class="col-md-10"><input type="text" placeholder="请输入手机号码，不确定的用*代替,*多于3个可能会卡死" class="form-control" v-model="tel" @keydown.enter="search"></div>
+    	<div class="col-md-2"><button class="btn btn-success" @click="search">查询</button></div>
+    </div>
+    <div class="row" v-show="re">
+    	<div class="col-md-12">归属地：{{re}} </div>
+    </div>
+    <div class="row" v-show="list.length>0">
+    	<div class="col-md-12">
+    		<h4>
+	    		所有可能的结果:
+	    		<span v-show="area">{{area}}</span> 
+	    		<span>总数：{{list.length}}</span>
+	    		<button class="btn btn-info" @click="back" v-show="oldlist.length>0">清除</button>
+    		</h4>
+    		<table class="table">
+    			<tr>
+    				<td>号码</td>
+    				<td>归属地</td>
+    			</tr>
+    			<tr v-for="v in list">
+    				<td>{{v.telString}}</td>
+    				<td @click="filter(v.carrier)" style="cursor:pointer;">{{v.carrier}}</td>
+    			</tr>
+    		</table>
+    	</div>
+    </div>
+
+
+
+</div>
+</body>
+</html>
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/vue/2.3.4/vue.min.js"></script>
+
+<script>
+var api="https://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=";
+
+$.ajaxSetup({
+  dataType:"jsonp",
+});
+
+new Vue({
+	el:".container",
+	data:{
+		tel:"",
+		re:"",
+		list:[],
+		oldlist:[],
+		start:[],
+		area:"",
+	},
+	created:function(){
+      //console.log(this.pad(12,4));
+	},
+	methods:{
+		search:function(){
+			var _this=this;
+			this.list=[];
+			if(this.tel.length!=11){
+				alert("电话号码长度为："+this.tel.length+",不正确");return;
+			}
+		  if(this.tel.match(/^\d{11}$/)){
+		  	$.get(api+this.tel).then(function(d){
+		  	console.log(d);
+		  	_this.re=d.carrier;
+		  })
+		  }else{
+		  	this.re="";
+		  	this.getlist();
+		  }	 
+		},
+		getlist:function(){
+			var start=[];
+			var tem=this.tel;
+			while(tem.match(/\*/)){
+				var index=tem.match(/\*/)['index'];
+				start.push(index);
+				tem=tem.replace("*","-");
+			}
+			this.start=start;
+			this.myfor();
+		},
+		myfor:function(){
+			var len=this.start.length;
+			var total=Math.pow(10,len);
+			for(var i=0;i<total;i++){
+				this.rep(i);
+			}
+		},
+		rep:function(i){
+			var len=this.start.length;
+			var num=len>1?this.pad(i,len):[i];
+			var tel=this.tel;
+			for(var i=0;i<len;i++){
+                tel=tel.replace("*",num[i]);
+			}
+			var _this=this;
+			$.get(api+tel).then(function(d){
+				 console.log(d);
+				if(d.province){
+					_this.list.push(d);
+				} 
+			})
+		},
+		pad:function(i,len){
+			var e=len-i.toString().length;
+			var re=i;
+			if(e==1){return [i];}
+			for(var i=0;i<e;i++){
+                   re="0"+re.toString();
+			}
+			return re.toString().split("");
+		},
+		filter:function(d){
+			this.area=d;
+			var len=this.list.length;
+			var re=[];
+			for(var i=0;i<len;i++){
+				if(this.list[i]['carrier']==d){
+					re.push(this.list[i]);
+				}
+			}
+			this.oldlist=this.list;
+			this.list=re;
+		},
+		back:function(){
+			console.log(this.oldlist);
+			this.list=this.oldlist;
+			this.oldlist=[];
+			this.area="";
+		}
+	}
+})
+</script>
