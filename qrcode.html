@@ -10,11 +10,22 @@
 </head>
 <body>
 <div class="container">
+<ul class="nav nav-tabs">
+   <li><a href="/">离线笔记应用</a><li>
+   <li><a href="/fuli.html">复利计算器</a><li>
+   <li><a href="/phone.html">手机号码归属地查询</a></li>
+   <li class="active"><a href="/qrcode.html">二维码生成器</a></li>
+</ul>
+
+
 	<div class="row">
-		<div class="col-md-8"><input type="text" class="form-control str" placeholder="请输入要生成二维码的内容" ></div>
-		<div class="col-md-4"><button class="btn btn-info sub">确定</button></div>
+		<h1 style="text-align: center;padding-bottom: 2rem;">二维码生成器</h1>
 	</div>
-	<div class="row">
+	<div class="row" style="padding:2rem;">
+		<div class="col-md-8 col-md-offset-2"><input type="text" class="form-control str" placeholder="请输入要生成二维码的内容" ></div>
+		<div class="col-md-2"><button class="btn btn-info sub">确定</button></div>
+	</div>
+	<div class="row" style="text-align: center;">
 		<div class="col-md-12 show"></div>
 	</div>
 </div>	
@@ -23,8 +34,19 @@
 </html>
 
 <script>
-$(".sub").click=function(){
-	var str=$(".str").val();
-	$(".show").qrcode(str);
-}	
+
+var q=$(".show").qrcode("请输入要生成二维码的内容");
+
+$(".sub").click(setCode);
+$(".str").on("keydown",function(e){
+	if(e.keyCode==13){
+		setCode();
+	}
+})	
+
+function setCode(){
+		var str=$(".str").val();
+	$(".show").html("").qrcode(str);
+}
+
 </script>
