@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>二维码生成器</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<script src="qrcode.js"></script>
+</head>
+<body>
+<div class="container">
+	<div class="row">
+		<div class="col-md-8"><input type="text" class="form-control str" placeholder="请输入要生成二维码的内容" ></div>
+		<div class="col-md-4"><button class="btn btn-info sub">确定</button></div>
+	</div>
+	<div class="row">
+		<div class="col-md-12 show"></div>
+	</div>
+</div>	
+	
+</body>
+</html>
+
+<script>
+$(".sub").click=function(){
+	var str=$(".str").val();
+	$(".show").qrcode(str);
+}	
+</script>
