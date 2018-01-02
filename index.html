@@ -32,11 +32,12 @@
  </div>	
 
 <div class="row pb">
-	<div class="col-md-2 col-xs-6">
+	<div class="col-md-4 col-xs-6">
 		<button class="btn btn-default mr" @click="show()">添 加</button>	
 		<button class="btn btn-info mr" @click="admin()">管理</button>
+		<button class="btn btn-success" @click="down()">备份</button>
 	</div>
-	<div class="col-md-2 col-md-offset-2 col-xs-6">   
+	<div class="col-md-2 col-xs-6">   
     		<input type="button" class="btn btn-danger" value="清除所有" @click="clear()">
     </div>
 
@@ -206,6 +207,27 @@ new Vue({
 		  for(var i in this.f){
 		  	 this.f[i]="";
 		  }
+		},
+		get_date:function(){
+          var d=new Date();
+          return d.getFullYear()+"_"+(d.getMonth()+1)+"_"+d.getDate();
+		},
+		down:function(){
+          this.Download(JSON.stringify(this.list),"读点离线笔记备份_"+this.get_date()+".txt");
+		},
+		Download:function (content, filename) {
+			// 创建隐藏的可下载链接
+			var eleLink = document.createElement('a');
+			eleLink.download = filename;
+			eleLink.style.display = 'none';
+			// 字符内容转变成blob地址
+			var blob = new Blob([content]);
+			eleLink.href = URL.createObjectURL(blob);
+			// 触发点击
+			document.body.appendChild(eleLink);
+			eleLink.click();
+			// 然后移除
+			document.body.removeChild(eleLink);
 		}
 	}
 })	
