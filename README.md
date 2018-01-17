@@ -5,6 +5,6 @@
 * 二维码生成器
 * 手机归属地查询
 
-### 以上可访问 <a href="https://tansuo1989.github.io/" target="_blank">网址</a>
+### 以上可访问 [网址](https://tansuo1989.github.io/ "马上访问")
 
 * demo 各种 js 的 demo

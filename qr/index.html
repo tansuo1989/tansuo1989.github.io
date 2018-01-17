@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="robots" content="index, follow"/>
+  <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Web QR</title>
+
+<style type="text/css">
+
+body{
+	margin:0;
+	padding:0;
+	font-size:1em;
+	font-family: Arial; /* rather use some google font */
+}
+
+h1, p{
+	margin:1em 0;
+}
+
+#mainbody{
+	width:auto;
+	max-width:1024px;
+	position:relative;
+	margin:0 auto;
+	padding:1em 1em 2em 1em;
+}
+
+video{
+	width:100%;
+	border:1px solid #ddd;
+}
+
+</style>
+
+<script type="text/javascript" src="llqrcode.js"></script>
+<script type="text/javascript" src="webqr.js"></script>
+
+</head>
+
+<body>
+
+<div id="mainbody">
+
+	<h1>Museum QR scanner</h1>
+	<p>Point your camera at a QR code on the wall to access media or text</p>
+	
+	<div id="outdiv">
+	</div>
+
+	<div id="result"></div>
+	</div>
+	
+</div>
+
+<canvas id="qr-canvas" width="800" height="600"></canvas>
+
+<script type="text/javascript">load();</script>
+
+</body>
+
+</html>
