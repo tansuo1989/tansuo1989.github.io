@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>win7的环境变量设置</title>
+<link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://cdn.bootcss.com/vue/2.3.3/vue.min.js"></script>
+<style>
+.input-content{min-height:8rem;}    
+</style>
+</head>
+<body>
+<div class="container">
+    <ul class="nav nav-tabs">
+            <li><a href="/">离线笔记应用</a><li>
+            <li><a href="/fuli.html">复利计算器</a><li>
+            <li><a href="/phone.html">手机号码归属地查询</a></li>
+            <li><a href="/qrcode.html">二维码生成器</a></li>
+            <li class="active"><a href="/path.html">win7 环境变量设置</a></li>
+    </ul>
+
+<div class="row">
+    <div class="col-md-12">
+        <h3 class="center">输入环境变量</h3>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+       <div class="form-group">
+           <textarea class="form-control input-content" v-model="input" @change="change"></textarea>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <h3 class="center">环境变量列表 <small>({{list.length}})个</small></h3>
+        <div class="row form-group" v-for="(v,i) in list">
+            <div class="col-md-10">
+                    <input type="text" class="form-control" v-model="v" @change="itemChange(v,i)">
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-danger" @click="del(i)">删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="padding-bottom:5rem;">
+    <div class="col-md-12">
+        <h3 class="center">输出环境变量</h3>
+    </div>
+    <div class="col-md-12">{{output}}</div>
+</div>
+
+
+
+
+</div>
+    
+</body>
+</html>
+
+<script>
+ 
+ new Vue({
+     el:".container",
+     data:{
+       input:"",
+       list:[],
+       output:"",
+     },
+     methods:{
+       change:function(){
+           this.list=this.input.split(";");
+           this.out();
+       },
+       itemChange:function(v,i){
+           this.list[i]=v;
+           this.out();
+       },
+       out:function(){
+         this.output=this.list.join(";");
+       },
+       del:function(i){
+           this.list.splice(i,1);
+           this.out();
+       }
+     }
+ })
+</script>
