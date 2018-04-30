@@ -86,9 +86,6 @@ var fun={
     },
     finish:function(){
         db.insert("score_2048",{time:new Date().getTime(),score:config.score})
-        this.async(function(){
-          alert("游戏结束");
-        })
     },
     is_finish:function(){
        var len=$(".item").length;
