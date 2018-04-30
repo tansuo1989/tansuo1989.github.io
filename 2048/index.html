@@ -31,7 +31,7 @@
 
 </div>
 
-    
+<div class="row debug"></div>    
 </body>
 </html>
 <script src="./lib/jquery.js"></script>
@@ -364,5 +364,9 @@ function slide(){
    
 }
 slide();
+
+document.addEventListener("touchmove",function(e){
+    $(".debug").text(JSON.stringify(e));
+}, false);
 
 </script>
