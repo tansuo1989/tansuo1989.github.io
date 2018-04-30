@@ -12,6 +12,7 @@
 .area .col-xs-3{border:1px solid #ddd;height:6rem;width:6rem;box-sizing: border-box;} 
 .item{line-height: 6rem;font-size:8rem;color:white;padding:0;}
 .container{min-height:100vh;}
+.start{margin:.5rem;}
 </style>
 </head>
 <body class="container">
@@ -21,6 +22,10 @@
 
 <div class="row center">
     得分：<span class="count">0</span>
+    历史最高：<span class="top">0</span>
+</div>
+<div class="row center">
+    <button class="btn btn-default start">重新开始</button>
 </div>
 <div class="row center">
     <button class="btn btn-default goback">上一步</button>
@@ -37,6 +42,7 @@
 </body>
 </html>
 <script src="./lib/jquery.js"></script>
+<script src="./lib/localdb.js"></script>
 
 <script>
 
@@ -57,6 +63,13 @@ var fun={
        })
        return all;
     },
+    cache:function(key,value){
+        if(!value){
+            return JSON.parse(localStorage.getItem(key));
+        }else{
+           localStorage.setItem(key,JSON.stringify(value));
+        }
+    },
     set_empty:function(){
       config.empty_item=[];
       var i=0;
@@ -67,12 +80,25 @@ var fun={
           }
           i++;
       })
-      if(config.empty_item.length==0){
-          config.fihish=true;
-          this.async(function(){
-            alert("游戏结束");
-          })
+      if(config.empty_item.length<2){
+         this.finish();
       }
+    },
+    finish:function(){
+        db.insert("score_2048",{time:new Date().getTime(),score:config.score})
+        this.async(function(){
+          alert("游戏结束");
+        })
+    },
+    is_finish:function(){
+       var len=$(".item").length;
+       for(var i=0;i<len;i++){
+           if(!$(".item").eq(i).text()){
+               return false;
+           }
+       }
+       alert("游戏结束");
+       return true;
     },
     async:function(fn){
       setTimeout(function(){
@@ -85,7 +111,7 @@ var fun={
         config.empty_item.splice(index,1);
         return item;
     },
-    next:function(){
+    next:function(isinit){
         this.set_bg();
         this.set_empty();
         var all_item=this.get_all();
@@ -94,6 +120,9 @@ var fun={
             this.clear_history();
             config.history.push(this.get_all());
             config.his_index++;
+            if(!isinit){
+                this.cache("history_2048",config.history);
+            }
             $(".step").text("第"+(config.his_index)+"步");
         }
     },
@@ -208,6 +237,7 @@ var fun={
                 $(this).css({fontSize:config.fontSize+"rem"});
             }
         })
+        config.score=count;
         $(".count").text(count);
     },
     draw:function(arr){
@@ -217,7 +247,13 @@ var fun={
         }
         this.set_bg();
     },
+    get_top:function(){
+      var score=db.max('score_2048',"score");
+      $(".top").text(score);
+    },
     init:function(){
+        config.history=[];
+        config.his_index=-1;
         var len=config.row*config.row;
         var str="";
         for(var i=0;i<len;i++){
@@ -229,6 +265,7 @@ var fun={
             width:r,
             height:r
             });
+        this.get_top();
         fun.next(true);
         fun.next(true);
     }
@@ -238,23 +275,13 @@ var fun={
 var config={
     all_item:[],
     empty_item:[],
-    count:0,
+    score:0,
     bgcolor:['#ddd',"#999","#FFEFD5","#FFE4B5","#98F5FF","#00F5FF","#9AFF9A","#00FF7F","#00BFFF","#0000FF","#8470FF","#696969","#8B658B","#FFA500","#FF4040","#FF0000"],
-    fihish:false,
     row:5,
     fontSize:8,
     history:[],
     his_index:-1,
 }
-
-
-
-$(".goback").click(function(){
-    fun.show_history(true);
-})
-$(".gonext").click(function(){
-    fun.show_history();
-})
 
 var controller={
     toLeft:function(isright){
@@ -282,7 +309,6 @@ var controller={
       fun.next();
     },
     toRight:function(){
-        console.log(this)
         controller.toLeft(true);
     },
     toUp:function(isright){
@@ -317,11 +343,28 @@ var controller={
 }
 
 
+$(".goback").click(function(){
+    fun.show_history(true);
+})
+$(".gonext").click(function(){
+    fun.show_history();
+})
 
 
 fun.init();
+if(fun.cache("history_2048")){
+    config.history=fun.cache("history_2048");
+    config.his_index=config.history.length-2;
+    fun.show_history();
+}
+
+
+$(".start").click(function(){
+    fun.init();
+})
 
 window.onkeydown=function(e){
+    if(fun.is_finish()){return;}
     if(e.keyCode==37){
         controller.toLeft();
     }else if(e.keyCode==38){
@@ -339,11 +382,13 @@ function slide(){
     var min=30;
     var event_type="";
     $("body").on("touchstart",function(e){
+        if(fun.is_finish()){return;}
         var edata=e.originalEvent.changedTouches[0];
         down={x:edata.clientX,y:edata.clientY};
     })
     
     $("body").on("touchend",function(e){
+        if(fun.is_finish()){return;}
         var edata=e.originalEvent.changedTouches[0];
         up={x:edata.clientX,y:edata.clientY};
         var x=up.x-down.x;
