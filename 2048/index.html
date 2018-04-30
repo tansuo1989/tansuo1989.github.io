@@ -8,10 +8,9 @@
 <link rel="stylesheet" href="./lib/bootstrap.min.css">
 <style>
 .center{text-align: center;}   
-.area{width:24rem;height:24rem;box-sizing: border-box;margin:1rem auto;}
+.area{box-sizing: border-box;margin:1rem auto;}
 .area .col-xs-3{border:1px solid #ddd;height:6rem;width:6rem;box-sizing: border-box;} 
 .item{line-height: 6rem;font-size:8rem;color:white;padding:0;}
-.control{border:1px solid #ddd;padding:2rem 1rem;}
 </style>
 </head>
 <body class="container">
@@ -22,31 +21,16 @@
 <div class="row center">
     得分：<span class="count">0</span>
 </div>
+<div class="row center">
+    <button class="btn btn-default goback">上一步</button>
+    <span class="step"></span>
+    <button class="btn btn-default gonext">下一步</button>
+    
+</div>
 <div class="row center area">
-    <div class="col-xs-3 item"></div>
-    <div class="col-xs-3 item"></div>
-    <div class="col-xs-3 item"></div>
-    <div class="col-xs-3 item"></div>
-    <div class="col-xs-3 item"></div>
-    <div class="col-xs-3 item"></div>
-    <div class="col-xs-3 item"></div>
-    <div class="col-xs-3 item"></div>
-    <div class="col-xs-3 item"></div>
-    <div class="col-xs-3 item"></div>
-    <div class="col-xs-3 item"></div>
-    <div class="col-xs-3 item"></div>
-    <div class="col-xs-3 item"></div>
-    <div class="col-xs-3 item"></div>
-    <div class="col-xs-3 item"></div>
-    <div class="col-xs-3 item"></div>
+
 </div>
 
-<div class="row center">
-    <div class="col-xs-2 col-xs-offset-5 control">上</div>
-    <div class="col-xs-2 col-xs-offset-4 control">左</div>
-    <div class="col-xs-2 control">右</div>
-    <div class="col-xs-2 col-xs-offset-5 control">下</div>
-</div>
     
 </body>
 </html>
@@ -54,131 +38,94 @@
 
 <script>
 
-window.onkeydown=function(e){
-    if(e.keyCode==37){
-        controller.toLeft();
-    }else if(e.keyCode==38){
-        controller.toUp();
-    }else if(e.keyCode==39){
-        controller.toRight();
-    }else if(e.keyCode==40){
-        controller.toDown();
-    }
-}
-
-$(".control").click(function(){
-    var text=$(this).text();
-    if(text=="左"){
-        controller.toLeft();
-    }else if(text=="右"){
-        controller.toRight();
-    }else if(text=="上"){
-        controller.toUp();
-    }else if(text=="下"){
-        controller.toDown();
-    }
-})
-
-var controller={
-    toLeft:function(isright){
-        var i=0;
-        var arr=[];
-        var row=data.row;
-        var maxindex=row-1;
-        var old_text=$(".area").text();
-        $(".item").each(function(){
-          var index=i%row;
-          if(index==0){
-              arr=[];
-          }
-          var n=$(this).text();
-          if(n){arr.push(n);}
-          if(index==maxindex){
-              fun.merge(arr,isright);
-              fun.arr_pad(arr,row,isright);
-              for(var j=0;j<row;j++){
-                     $(".item").eq(i-maxindex+j).text(arr[j]);
-              }
-          }
-          i++;
-      })
-      var is_change=$(".area").text()==old_text?false:true;
-      fun.next(is_change);
-    },
-    toRight:function(){
-        this.toLeft(true);
-    },
-    toUp:function(isright){
-        var arr=[];
-        var row=data.row;
-        var old_text=$(".area").text();
-        var i=0;
-        $(".item").each(function(){
-            var num=$(this).text();
-            if(i<row){
-                arr[i]=[];
-            }
-            if(num){
-                 arr[i%row].push(num); 
-            }
-          i++;
-        })
-
-        for(var j=0;j<row;j++){
-            var tem=arr[j];
-            fun.merge(tem,isright);
-            fun.arr_pad(tem,row,isright);
-            for(var ii=0;ii<row;ii++){
-                $(".item").eq(row*ii+j).text(tem[ii]);
-            }
-        }
-
-      var is_change=$(".area").text()==old_text?false:true;
-      fun.next(is_change);
-    },
-    toDown:function(){
-       this.toUp(true);
-    }
-}
 
 var fun={
     rand:function(min,max){
        return parseInt(Math.random()*(max-min))+min;
     },
     get_color:function(){
-       var index=this.rand(0,data.bgcolor.length-1);
-       return data.bgcolor[index];
+       var index=this.rand(0,config.bgcolor.length-1);
+       return config.bgcolor[index];
+    },
+    get_all:function(){
+       var all=[];
+       $(".item").each(function(){
+           var n=$(this).text();
+           all.push(n?n:0);
+       })
+       return all;
     },
     set_empty:function(){
-      data.empty_item=[];
+      config.empty_item=[];
       var i=0;
       $(".item").each(function(){
           var n=$(this).text();
-          if(!n){data.empty_item.push(i);}
+          if(!n){
+              config.empty_item.push(i);
+          }
           i++;
       })
-      if(data.empty_item.length==0){
-          data.fihish=true;
-          alert("游戏结束");
+      if(config.empty_item.length==0){
+          config.fihish=true;
+          this.async(function(){
+            alert("游戏结束");
+          })
       }
+    },
+    async:function(fn){
+      setTimeout(function(){
+          fn();
+      },0)
     },
     get_empty:function(){
-        var index=this.rand(0,data.empty_item.length-1);
-        var item=data.empty_item[index];
-        data.empty_item.splice(index,1);
+        var index=this.rand(0,config.empty_item.length-1);
+        var item=config.empty_item[index];
+        config.empty_item.splice(index,1);
         return item;
     },
-    next:function(is_change){
+    next:function(){
         this.set_bg();
         this.set_empty();
-      if(is_change){
-        this.set_num();
-        // this.set_num();
+        var all_item=this.get_all();
+        if(JSON.stringify(all_item)!=JSON.stringify(config.all_item)){
+            this.set_num();
+            this.clear_history();
+            config.history.push(this.get_all());
+            config.his_index++;
+            $(".step").text("第"+(config.his_index)+"步");
+        }
+    },
+    clear_history:function(){
+        var len=config.history.length;
+      if(len>config.his_index+1){
+          for(var i=config.his_index+1;i<len;i++){
+              config.history.pop();
+          }
       }
+    },
+    show_history:function(isback){
+        var len=config.history.length;
+        if(isback){
+            config.his_index--;
+        }else{
+            config.his_index++;
+        }
+        if(config.his_index<1){
+            config.his_index=1;
+            alert("不能再退了");
+            return;
+        }else if(config.his_index>len-1){
+            config.his_index=len-1;
+            alert("不能再前进了");
+            return;
+        }
+        // console.log(config.his_index,len,config.history);
+        $(".step").text("第"+(config.his_index)+"步");
+        this.draw(config.history[config.his_index]);
     },
     set_num:function(){
         var empty=fun.get_empty();
-        var style={background:data.bgcolor[0]};
+        var style={background:config.bgcolor[0]};
         $(".item").eq(empty).text(2).css(style);
     },
     merge:function(arr,isright){
@@ -248,37 +195,174 @@ var fun={
         })
         var color={};
         for(var i=0,len=num.length;i<len;i++){
-            color[num[i]]=data.bgcolor[i];
+            color[num[i]]=config.bgcolor[i];
         }
         $(".item").each(function(){
             var n=$(this).text();
             if(n){
-                var size=data.fontSize/(n.toString().length)+"rem";
+                var size=config.fontSize/(n.toString().length)+"rem";
                 $(this).css({background:color[n],fontSize:size});
             }else{
-                $(this).css({fontSize:data.fontSize+"rem"});
+                $(this).css({fontSize:config.fontSize+"rem"});
             }
         })
         $(".count").text(count);
+    },
+    draw:function(arr){
+        var len=arr.length;
+        for(var i=0;i<len;i++){
+            $(".item").eq(i).text(arr[i]>0?arr[i]:"");
+        }
+        this.set_bg();
+    },
+    init:function(){
+        var len=config.row*config.row;
+        var str="";
+        for(var i=0;i<len;i++){
+            str+='<div class="col-xs-3 item"></div>';
+        }
+        $(".area").html(str);
+        var r=config.row*6+"rem";
+        $(".area").css({
+            width:r,
+            height:r
+            });
+        fun.next(true);
+        fun.next(true);
     }
 }
 
 
-var data={
+var config={
+    all_item:[],
     empty_item:[],
     count:0,
     bgcolor:['#ddd',"#999","#FFEFD5","#FFE4B5","#98F5FF","#00F5FF","#9AFF9A","#00FF7F","#00BFFF","#0000FF","#8470FF","#696969","#8B658B","#FFA500","#FF4040","#FF0000"],
     fihish:false,
-    row:4,
+    row:5,
     fontSize:8,
+    history:[],
+    his_index:-1,
 }
 
 
-!function(){
-    fun.next(true);
-}();
 
-var arr=[2,2,2];
-// console.log(fun.merge(arr,true));
-console.log(fun.arr_pad(arr,10,true));
+$(".goback").click(function(){
+    fun.show_history(true);
+})
+$(".gonext").click(function(){
+    fun.show_history();
+})
+
+var controller={
+    toLeft:function(isright){
+        var i=0;
+        var arr=[];
+        var row=config.row;
+        var maxindex=row-1;
+        config.all_item=fun.get_all();
+        $(".item").each(function(){
+          var index=i%row;
+          if(index==0){
+              arr=[];
+          }
+          var n=$(this).text();
+          if(n){arr.push(n);}
+          if(index==maxindex){
+              fun.merge(arr,isright);
+              fun.arr_pad(arr,row,isright);
+              for(var j=0;j<row;j++){
+                     $(".item").eq(i-maxindex+j).text(arr[j]);
+              }
+          }
+          i++;
+      })
+      fun.next();
+    },
+    toRight:function(){
+        console.log(this)
+        controller.toLeft(true);
+    },
+    toUp:function(isright){
+        var arr=[];
+        var row=config.row;
+        var i=0;
+        config.all_item=fun.get_all();
+        $(".item").each(function(){
+            var num=$(this).text();
+            if(i<row){
+                arr[i]=[];
+            }
+            if(num){
+                 arr[i%row].push(num); 
+            }
+          i++;
+        })
+
+        for(var j=0;j<row;j++){
+            var tem=arr[j];
+            fun.merge(tem,isright);
+            fun.arr_pad(tem,row,isright);
+            for(var ii=0;ii<row;ii++){
+                $(".item").eq(row*ii+j).text(tem[ii]);
+            }
+        }
+      fun.next();
+    },
+    toDown:function(){
+        controller.toUp(true);
+    }
+}
+
+
+
+
+fun.init();
+
+window.onkeydown=function(e){
+    if(e.keyCode==37){
+        controller.toLeft();
+    }else if(e.keyCode==38){
+        controller.toUp();
+    }else if(e.keyCode==39){
+        controller.toRight();
+    }else if(e.keyCode==40){
+        controller.toDown();
+    }
+}
+
+function slide(){
+    var down={};
+    var up={};
+    var min=50;
+    var event_type="";
+    var haddo=true;
+    $("body").on("mousedown",function(e){
+            down={x:e.clientX,y:e.clientY};
+            haddo=false;
+            // console.log("down",down)
+    })
+    
+    $("body").on("mousemove",function(e){
+        if(haddo){return;}
+        up={x:e.clientX,y:e.clientY};
+        // console.log("up",up)
+        var x=up.x-down.x;
+        var y=up.y-down.y;
+        var x_count=Math.abs(x);
+        var y_count=Math.abs(y);
+        if(x_count<=min&&y_count<=min){return;}
+        if(x_count>=y_count){
+            event_type=x>0?"toRight":"toLeft";
+        }else{
+            event_type=y>0?"toDown":"toUp";
+        }
+        controller[event_type]();
+        haddo=true;
+    })
+    
+   
+}
+slide();
+
 </script>
