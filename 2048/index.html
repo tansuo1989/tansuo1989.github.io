@@ -31,7 +31,8 @@
 
 </div>
 
-<div class="row debug"></div>    
+
+    
 </body>
 </html>
 <script src="./lib/jquery.js"></script>
@@ -336,17 +337,14 @@ function slide(){
     var up={};
     var min=50;
     var event_type="";
-    var haddo=true;
-    $("body").on("mousedown",function(e){
-            down={x:e.clientX,y:e.clientY};
-            haddo=false;
-            // console.log("down",down)
+    $("body").on("touchstart",function(e){
+        var edata=e.originalEvent.changedTouches[0];
+        down={x:edata.clientX,y:edata.clientY};
     })
     
-    $("body").on("mousemove",function(e){
-        if(haddo){return;}
-        up={x:e.clientX,y:e.clientY};
-        // console.log("up",up)
+    $("body").on("touchend",function(e){
+        var edata=e.originalEvent.changedTouches[0];
+        up={x:edata.clientX,y:edata.clientY};
         var x=up.x-down.x;
         var y=up.y-down.y;
         var x_count=Math.abs(x);
@@ -365,8 +363,5 @@ function slide(){
 }
 slide();
 
-document.addEventListener("touchmove",function(e){
-    $(".debug").text(JSON.stringify(e));
-}, false);
 
 </script>
