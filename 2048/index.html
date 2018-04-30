@@ -383,6 +383,10 @@ function slide(){
         var edata=e.originalEvent.changedTouches[0];
         down={x:edata.clientX,y:edata.clientY};
     })
+
+    $("body").on("touchmove",function(e){
+        e.preventDefault(); //阻止滚动
+    })
     
     $("body").on("touchend",function(e){
         if(fun.is_finish()){return;}
