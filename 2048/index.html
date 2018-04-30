@@ -37,6 +37,7 @@
 
 </div>
 
+<div class="row msg"></div>
 
     
 </body>
@@ -91,10 +92,11 @@ var fun={
        var len=$(".item").length;
        for(var i=0;i<len;i++){
            if(!$(".item").eq(i).text()){
+            $(".msg").text("");
                return false;
            }
        }
-       alert("游戏结束");
+       $(".msg").text("游戏结束");
        return true;
     },
     async:function(fn){
@@ -257,6 +259,7 @@ var fun={
             str+='<div class="col-xs-3 item"></div>';
         }
         $(".area").html(str);
+        $(".msg").text("");
         var r=config.row*6+"rem";
         $(".area").css({
             width:r,
