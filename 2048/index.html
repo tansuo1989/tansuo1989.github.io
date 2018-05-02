@@ -106,13 +106,13 @@ var fun={
               if(arr[j]==arr[j+1]){
                  $(".msg").text("");
                  return false;
-              }else if(j<(len-config.row)){
-                  if(arr[j]==arr[j+config.row]){
-                      $(".msg").text("");
-                      return false;
-                  }
               }
-          }
+          }else if(j<(len-config.row)){
+            if(arr[j]==arr[j+config.row]){
+                $(".msg").text("");
+                return false;
+            }
+         }
        }
        $(".msg").text("游戏结束");
        return true;
