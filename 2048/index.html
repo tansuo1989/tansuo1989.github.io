@@ -91,11 +91,28 @@ var fun={
     },
     is_finish:function(){
        var len=$(".item").length;
+       var arr=[];
        for(var i=0;i<len;i++){
-           if(!$(".item").eq(i).text()){
-            $(".msg").text("");
+           var n=$(".item").eq(i).txt();
+           if(n){
+               arr.push(n);
+           }else{
+               $(".msg").text("");
                return false;
            }
+       }
+       for(var j=0;j<len;j++){
+          if(j%config.row!=(config.row-1)){
+              if(arr[j]==arr[j+1]){
+                 $(".msg").text("");
+                 return false;
+              }else if(j<(len-config.row-1)){
+                  if(arr[j]==arr[j+config.row]){
+                      $(".msg").text("");
+                      return false;
+                  }
+              }
+          }
        }
        $(".msg").text("游戏结束");
        return true;
