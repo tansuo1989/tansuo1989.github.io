@@ -107,7 +107,9 @@ var fun={
                  $(".msg").text("");
                  return false;
               }
-          }else if(j<(len-config.row)){
+          }
+          if(j<(len-config.row)){
+            //   console.log(arr[j],arr[j+config.row]);
             if(arr[j]==arr[j+config.row]){
                 $(".msg").text("");
                 return false;
@@ -372,6 +374,7 @@ $(".gonext").click(function(){
 fun.init();
 if(fun.cache("history_2048")){
     config.history=fun.cache("history_2048");
+    config.history[config.history.length-1]=[2,4,16,4,2,16,4,8,2,4,8,16,2,8,4,32];
     config.his_index=config.history.length-2;
     fun.show_history();
 }
