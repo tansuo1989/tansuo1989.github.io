@@ -13,6 +13,7 @@
 .item{line-height: 6rem;font-size:8rem;color:white;padding:0;}
 .container{min-height:100vh;}
 .start{margin:.5rem;}
+.msg{color:red;}
 </style>
 </head>
 <body class="container">
@@ -37,7 +38,7 @@
 
 </div>
 
-<div class="row msg"></div>
+<div class="row msg center"></div>
 
     
 </body>
@@ -361,6 +362,7 @@ if(fun.cache("history_2048")){
 
 $(".start").click(function(){
     fun.init();
+    $(".msg").text("");
 })
 
 window.onkeydown=function(e){
