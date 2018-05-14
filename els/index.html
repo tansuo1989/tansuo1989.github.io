@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="../2048/lib/bootstrap.min.css">
+<title>俄罗斯方块</title>
+<style>
+.container{width:100%;max-width:505px;margin:0 auto;overflow: hidden;position: relative;}
+.center{text-align: center;}  
+.title,.sub-title{height:7vh;line-height: 7vh;}
+.show{height:80vh;position: relative;padding:0;}
+.showtable{position: absolute;left:0;top:0;}
+.draw{position: relative;}
+.draw-true{position: absolute;bottom:.5rem;right:.5rem;}
+.next-item{position: absolute;bottom:0;left:0}
+.now-itme{position: absolute;}
+.move-item{position: absolute;z-index: 1;left:0;top:0;}
+.move-table{border:0;}
+.msg{color:red;height:34px;}
+.start{display: none;}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="row title">
+        <div class="col-xs-12">
+            <h2 class="center">俄罗斯方块</h2>
+        </div>
+    </div>
+    <div class="row msg center">
+        <span></span>
+        <button class="btn btn-default start">开始游戏</button>
+        <button class="btn btn-default pause">暂停</button>
+    </div>
+    <div class="row sub-title">
+        <div class="col-xs-6 center">
+            得分：<span class="score">0</span> &nbsp;
+            历史最高：<span class="top_score">0</span>
+        </div>
+        <div class="col-xs-6 draw">下一个：<div class="draw-true">
+            <table class="table-bordered drawtable">
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        </div></div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 show">
+            <table class="table-bordered showtable"></table> 
+            <div class="move-item">
+                <table class="table-bordered move-table"></table>
+            </div>
+        </div>
+    </div>
+</div>    
+</body>
+</html>
+<script src="../2048/lib/jquery.js"></script>
+<script>
+var tool={
+    merge:function(o1,o2){
+        var re={};
+        for(var i in o1){
+            re[i]=o1[i];
+        }
+        for(var j in o2){
+            re[j]=o2[j];
+        }
+        return re;
+    }
+}
+
+var fun={
+    init:function(){
+      this.set_td();
+      this.draw();
+      this.start();
+      $(".msg span").text("");
+      $(".start").hide();
+      $(".pause").show();
+      this.data.gameover=false;
+      var max=localStorage.getItem("els_top_score");
+      $(".top_score").text(max);
+    },
+    config:{
+       width:25,
+       pertime:300,
+       nocolor:"rgba(0, 0, 0, 0)",
+       color:{
+           i:"rgb(0,240,240)",
+           l:"rgb(240,161,0)",
+           rl:"rgb(0,0,240)",
+           t:"rgb(161,0,240)",
+           s:"rgb(0,240,0)",
+           rs:"rgb(240,0,0)",
+           h:"rgb(240,240,0)"
+       },
+       shape:["i","l","rl","t","s","rs","h"],
+       fill:{
+           i:[
+               [0,1,2,3],
+               [0,4,8,12]
+           ],
+           l:[
+               [0,4,8,9],
+               [6,8,9,10],
+               [1,2,6,10],
+               [4,5,6,8]
+           ],
+           rl:[
+               [2,6,9,10],
+               [0,1,2,6],
+               [0,1,4,8],
+               [4,8,9,10]
+           ],
+           t:[
+               [0,1,2,5],
+               [0,4,5,8],
+               [5,8,9,10],
+               [2,5,6,10],
+           ],
+           s:[
+               [0,4,5,9],
+               [5,6,8,9],
+           ],
+           rs:[
+               [2,5,6,9],
+               [0,1,5,6],
+           ],
+           h:[
+               [0,1,4,5]
+           ]
+       }
+    },
+    data:{
+        tdstyle:{},
+        maxtop:0,
+        max:0,
+        index:0,
+        type:"",
+        move:{
+            max:0,
+            index:0,
+            type:""
+        },
+        nowrow:0,//当前行
+        nowcol:0,//当前列
+        trcount:0,
+        tdcount:0,
+        timer:0,
+        gameover:false,
+        old_score:0,
+    },
+    rand:function(min,max){
+       return Math.round(Math.random()*(max-min))+min;
+    },
+    now_color:function(){
+        var type=this.data.move.type;
+        return this.config.color[type];
+    },
+    set_td:function(){
+        var w=$(".show").width();
+        var h=$(".show").height();
+        var trcount=Math.floor(h/this.config.width);
+        var tdcount=Math.floor(w/this.config.width);
+        this.data.trcount=trcount;
+        this.data.tdcount=tdcount;
+        var str="";
+        for(var i=0;i<trcount;i++){
+            str+="<tr>";
+                for(var j=0;j<tdcount;j++){
+                    str+="<td></td>";
+                }
+            str+="</tr>";
+        }
+        $(".showtable").html(str);
+        this.data.tdstyle={
+            width:this.config.width,
+            height:this.config.width
+        };
+        $(".showtable td").css(this.data.tdstyle);
+        var tw=$(".showtable").width();
+        var left=(w-tw)/2;
+        $(".showtable").css({left:left});
+        this.data.maxtop=$(".showtable").height()-this.config.width;
+    },
+    draw:function(){
+        var style={
+            width:this.config.width*4,
+            height:this.config.width*4,
+        };
+        $(".draw-true").css(style);
+        $(".move-item").css(style);
+        $(".drawtable td").css(this.data.tdstyle);
+        this.draw_new();
+    },
+    draw_new:function(){
+        var len=this.config.shape.length-1;
+        var i=this.rand(0,len);
+        var type=this.config.shape[i];
+        this.data.index=0;
+        this.data.type=type;
+        var items=this.config.fill[type][0];
+        fun.data.max=fun.config.fill[type].length-1;
+        this.set_color(items);
+    },
+    set_color:function(arr,table){
+        var _this=this;
+        if(table=="move-table"){
+            var type=this.data.move.type;
+            var tds=".move-table td";
+        }else{
+            var type=this.data.type;
+            var tds=".drawtable td";
+        }
+        $(tds).css({background:"transparent"});
+        $.each(arr,function(i,v){
+            $(tds).eq(v).css({
+                background:_this.config.color[type]
+            })
+        }) 
+    },
+    start:function(){
+       var table=$(".drawtable").html();
+       $(".move-table").html(table);
+       var left=$(".showtable").css("left");
+       var leftcount=Math.ceil((this.data.tdcount-4)/2);
+       var leftp=parseInt(left)+this.config.width*leftcount;
+       this.data.nowcol=leftcount;
+       $(".move-item").css({
+           left:leftp+1,
+           top:0,
+       })
+       $(".move-table td").css({
+           border:0
+       })
+       this.data.move={
+            max:this.data.max,
+            index:this.data.index,
+            type:this.data.type,
+       };
+       this.draw_new();
+       var _this=this;
+       this.data.nowrow=1;
+       this.continue();
+    },
+    continue:function(){
+        var _this=this;
+        if(this.is_dead()){
+           console.log("dead")
+          this.over_show();
+       }else{
+            this.data.timer=setInterval(function(){
+                _this.move();
+            },this.config.pertime)
+       }
+    },
+    pause:function(){
+        clearInterval(this.data.timer);
+        this.cache_all();
+    },
+    cache_all:function(){
+      var cache={
+          config:this.config,
+          data:this.data,
+          html:$(".container").html(),
+      }
+      localStorage.setItem("els_all_cache",JSON.stringify(cache));
+    },
+    is_dead:function(){
+        var color=this.get_move_color();
+        for(var i in color){
+            var pos=this.get_position(color[i]);
+            var index=this.get_index(pos);
+            if(!this.is_empty(index)){
+                return true;
+            }
+        }
+        return false;
+    },
+    is_empty:function(index){
+      return $(".showtable td").eq(index).css("backgroundColor")==this.config.nocolor;
+    },
+    stop:function(){
+        clearInterval(this.data.timer);
+        this.fill();
+        this.count();
+        if(this.is_over()==false){
+            this.start();
+        }else{
+           this.over_show();
+        }
+    },
+    over_show:function(){
+        $(".msg span").text("游戏结束");
+        $(".start").show();
+        this.data.gameover=true;
+        var max=parseInt(localStorage.getItem("els_top_score"));
+        var score=parseInt($(".score").text());
+        max=max>score?max:score;
+        localStorage.setItem("els_top_score",max);
+        $(".pause").hide();
+        localStorage.removeItem("els_all_cache");
+    },
+    is_over:function(){
+        var over=false;
+        var _this=this;
+        $(".showtable tr").eq(0).children().each(function(){
+            var color=$(this).css("backgroundColor");
+             if($(this).css("backgroundColor")!=_this.config.nocolor){
+                 over=true;
+             }
+        })
+        return over;
+    },
+    fill:function(){
+        var color=this.get_move_color();
+        var now_color=this.now_color();
+        //第一行总是不能被填充？？
+        for(var i in color){
+            var tem=parseInt(color[i]);
+            var position=this.get_position(tem);
+            var index=this.get_index(position);
+            // console.log(position,index)
+            $(".showtable td").eq(index).css({
+                background:now_color,
+            })
+        }
+        // console.log("____________")
+    },
+    count:function(){
+     var num=0;
+     var _this=this;
+     $(".showtable tr").each(function(){
+         var tr=true;
+         var trdom=$(this);
+         $(this).children().each(function(){
+             if($(this).css("backgroundColor")==_this.config.nocolor){
+                 tr=false;
+             }
+         })
+         if(tr){
+             num++;
+             trdom.remove();
+         }
+     })
+     if(num>0){
+        this.addrow(num);
+        var score=parseInt($(".score").text())+num*num;
+        $(".score").text(score);
+        if(score-this.data.old_score>100){
+            this.config.pertime-=10;
+            this.data.old_score=Math.round(score/100)*100;
+        }
+     }
+    },
+    addrow:function(row){
+      if(row==0){return false;}
+      var str="";
+      for(var i=0;i<row;i++){
+          str+="<tr>";
+          for(var j=0;j<this.data.tdcount;j++){
+              str+="<td></td>";
+          }
+          str+="</tr>";
+      }
+      $(".showtable tr").eq(0).before(str);
+      $(".showtable td").css(this.data.tdstyle);
+    },
+    move:function(){
+        var color=this.get_move_color();
+        var isnext=false;
+        for(var j in color){
+            var tem=parseInt(color[j]);
+            if(color[tem+4]||color[tem+8]||color[tem+12]){
+            //   
+            }else{
+                var position=this.get_position(tem);
+                var index=this.get_index(position);
+                var next_row=$(".showtable td").eq(index+this.data.tdcount).css("backgroundColor");
+                if(position.row==this.data.trcount){
+                    this.stop();isnext=false; break;
+                }else if(next_row!=this.config.nocolor){
+                    this.stop();isnext=false;break;
+                }else{
+                    isnext=true;
+                }
+            }
+        }
+        if(isnext){
+            var top=parseInt($(".move-item").css("top"));
+            $(".move-item").css({
+                     top:top+this.config.width,
+                })
+            this.data.nowrow++;
+        }
+    },
+    get_position:function(index){
+        var temcol=index%4+1;
+          return {
+              row:this.data.nowrow+Math.floor(index/4),
+              col:this.data.nowcol+temcol,
+          }
+    },
+    get_index:function(position){
+        return (position.row-1)*this.data.tdcount+position.col-1;
+    },
+    get_move_color:function(){
+        var type=fun.data.move.type;
+        var arr=fun.config.fill[type][fun.data.move.index];
+        return arr;
+    },
+    now_down:function(){
+        var color=this.get_move_color();
+        var minrow=this.data.trcount;
+        for(var i in color){
+            var pos=this.get_position(color[i]);
+            var len=this.data.trcount-pos.row;
+            var min=this.get_index(pos);
+            var maxrow=len;
+            for(var j=1;j<=len;j++){
+                var index=min+this.data.tdcount*j;
+                if(!this.is_empty(index)){
+                    maxrow=j-1;
+                    break;
+                }
+            }
+            minrow=maxrow<minrow?maxrow:minrow;
+        }
+        if(minrow>0){
+            var top=parseInt($(".move-item").css("top"));
+            $(".move-item").css({
+                     top:top+this.config.width*minrow,
+                })
+            this.data.nowrow+=minrow;
+        }
+    }
+}
+
+
+if(localStorage.getItem("els_all_cache")){
+    var cache=JSON.parse(localStorage.getItem("els_all_cache"));
+    fun.config=cache.config;
+    fun.data=cache.data;
+    $(".container").html(cache.html);
+    $(".pause").text("继续");
+}else{
+    fun.init();
+}
+
+
+
+var controller={
+//变形时可能左右越界，需要考虑到
+up:function(){
+   fun.data.move.index=fun.data.move.index<fun.data.move.max?++fun.data.move.index:0;
+   var type=fun.data.move.type;
+   var arr=fun.config.fill[type][fun.data.move.index];
+   fun.set_color(arr,"move-table");
+   var color=fun.get_move_color();
+   var left=parseInt($(".move-item").css("left"));
+   var min=1;
+   var max=0;
+   for(var i in color){
+       var pos=fun.get_position(color[i]);
+       if(pos.col<min){
+           min=pos.col;
+       }else if(pos.col>max){
+           max=pos.col;
+       }
+   }
+   if(min<1){
+       var move_count=1-min;
+       $(".move-item").css({
+               left:left+fun.config.width*move_count
+           })
+       fun.data.nowcol+=move_count;
+   }else if(max>fun.data.tdcount){
+       var move_count=pos.col-fun.data.tdcount;
+       $(".move-item").css({
+              left:left-fun.config.width*move_count
+           })
+       fun.data.nowcol-=move_count;
+   }
+},
+left:function(){
+    var left=parseInt($(".move-item").css("left"));
+    var color=fun.get_move_color();
+    var can_to_left=true;
+    for(var i in color){
+        var pos=fun.get_position(color[i]);
+        var left_pos={
+            row:pos.row,
+            col:pos.col-1,
+        };
+        var left_index=fun.get_index(left_pos);
+        var left_color=$(".showtable td").eq(left_index).css("backgroundColor");
+        if(pos.col<2){
+            can_to_left=false;
+            break;
+        }else if(left_color!=fun.config.nocolor){
+            can_to_left=false;
+            break;
+        }
+    }
+    if(can_to_left){
+        $(".move-item").css({
+           left:left-fun.config.width,
+        })
+        fun.data.nowcol--;
+    }
+},
+right:function(){
+    var left=parseInt($(".move-item").css("left"));
+    var can_to_right=true;
+    var color=fun.get_move_color();
+    for(var i in color){
+        var pos=fun.get_position(color[i]);
+        var right_pos={
+            row:pos.row,
+            col:pos.col+1,
+        };
+        var right_index=fun.get_index(right_pos);
+        var right_color=$(".showtable td").eq(right_index).css("backgroundColor");
+        if(pos.col>fun.data.tdcount-1){
+            can_to_right=false;
+            break;
+        }else if(right_color!=fun.config.nocolor){
+            can_to_right=false;
+            break;
+        }
+    }
+    if(can_to_right){
+        $(".move-item").css({
+           left:left+fun.config.width,
+        })
+        fun.data.nowcol++;
+    }
+},
+down:function(){
+    fun.move();
+},
+space:function(){
+    fun.now_down();
+}
+
+}
+
+
+$(".start").click(function(){
+    fun.init();
+})
+$(".pause").click(function(){
+    var text=$(this).text();
+    if(text=="暂停"){
+        fun.pause();
+        $(this).text("继续");
+    }else{
+        fun.continue();
+        $(this).text("暂停");
+    }
+})
+window.onkeydown=function(e){
+    if(fun.gameover){return;}
+    var code=e.keyCode;
+    if(code==37){
+        controller.left();
+    }else if(code==38){
+        controller.up();
+    }else if(code==39){
+        controller.right();
+    }else if(code==40){
+        controller.down();
+    }else if(code==32){
+        controller.space();//快速下落
+    }
+}
+
+function slide(){
+    var down={};
+    var up={};
+    var min=30;
+    var event_type="";
+    $("body").on("touchstart",function(e){
+        var edata=e.originalEvent.changedTouches[0];
+        down={x:edata.clientX,y:edata.clientY};
+    })
+    $("body").on("touchend",function(e){
+        var edata=e.originalEvent.changedTouches[0];
+        up={x:edata.clientX,y:edata.clientY};
+        var x=up.x-down.x;
+        var y=up.y-down.y;
+        var x_count=Math.abs(x);
+        var y_count=Math.abs(y);
+        if(x_count<=min&&y_count<=min){return;}
+        if(x_count>=y_count){
+            event_type=x>0?"right":"left";
+        }else{
+            event_type=y>0?"space":"up";
+        }
+        controller[event_type]();
+    })
+}
+slide();
+
+</script>

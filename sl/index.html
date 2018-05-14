@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>扫雷游戏</title>
+<link rel="stylesheet" href="../2048/lib/bootstrap.min.css">
+<style>
+body{width:100%;height:100vh;}
+.container{width:100%;max-width:900px;margin:0 auto;position: relative;user-select: none;}    
+.center{text-align: center;}
+.title{margin-bottom:1rem;}
+.showtable{margin:auto;}
+td{text-align: center;font-size:1.5rem;vertical-align: middle!important;color:white;cursor: pointer;}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="row title center">
+    <div class="col-xs-12"><h3>扫雷</h3></div>
+    <div class="col-xs-12">
+        关卡：<span class="score">1</span> &nbsp;
+        用时：<span class="time">0</span>&nbsp;
+        历史最快：<span class="top_score">0</span>&nbsp;
+        <button class="btn btn-default start">开始</button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-12 center show-container">
+        <table class="table-bordered showtable">
+
+        </table>
+    </div>
+</div>
+
+
+</div>
+</body>
+</html>
+<script src="../2048/lib/jquery.js"></script>
+
+<script>
+
+
+var config={
+    row:6,
+    width:30,
+    percent:0.3,//地雷的比例
+    bom:"*",//地雷
+    timer:"",//
+    gameover:false,
+    step:1,
+    debug:true,//允许调试
+}
+
+var fun={
+    set_default:function(){
+        config.gameover=false;
+        $(".score").text(config.step);
+        var old=this.cache(config.step);
+        $(".time").text(0);
+        $(".top_score").text(old?old:0);
+    },
+    start:function(){
+        this.set_default();
+        var row=config.row;
+        var str="";
+        for(var i=0;i<row;i++){
+            str+="<tr>";
+                for(var j=0;j<row;j++){
+                    str+="<td></td>";
+                }
+            str+="</tr>";
+        }
+        $(".showtable").html(str).css({
+           width:config.width*config.row,
+        });
+        $(".showtable td").css({
+            width:config.width,
+            height:config.width,
+        })
+        var i=0;
+        $(".showtable td").each(function(){
+            $(this).attr("index",i);
+            i++;
+        })
+        this.create_bom();
+        this.set_num();
+        this.time();
+        this.default_click();
+        controller();
+    },
+    time:function(){
+        clearInterval(config.timer);
+        config.timer=setInterval(function(){
+            var now=parseInt($(".time").text());
+            $(".time").text(now+1);
+        },1000)
+    },
+    stop:function(){
+        clearInterval(config.timer);
+    },
+    rand:function(min,max){
+       return Math.round(Math.random()*(max-min))+min;
+    },
+    rand_more:function(min,max,num){
+        var re=[];
+        while(re.length<num){
+            var tem=this.rand(min,max);
+            if(this.in_array(tem,re)==false){
+                re.push(tem);
+            }
+        }
+        return re;
+    },
+    in_array:function(item,arr){
+       return arr.indexOf(item)!=-1;
+    },
+    create_bom:function(){
+      var count=$(".showtable td").length;
+      var bom=parseInt(count*config.percent);
+      var arr=this.rand_more(0,count-1,bom);
+      arr.forEach(function(item){
+          $(".showtable td").eq(item).text(config.bom);
+      })
+    },
+    set_num:function(){
+        var _this=this;
+        var i=0;
+        $(".showtable td").each(function(){
+            var text=$(this).text();
+            if(text!=config.bom){
+                // console.log(_this.get_near(i))
+                $(this).text(_this.get_bom(i));
+            }
+            i++;
+        })
+    },
+    get_bom:function(index){
+        var arr=this.get_near(index);
+        var count=0;
+        arr.forEach(function(item){
+            if($(".showtable td").eq(item).text()==config.bom){
+                count++;
+            }
+        })
+        return count;
+    },
+    get_near:function(index){
+        var row=config.row;
+        var nowrow=Math.floor(index/row);
+        var nowcol=index%row;
+        var arr=[];
+        if(nowrow>0){arr.push(index-row);}
+        if(nowrow<row-1){arr.push(index+row);}
+        if(nowcol>0){arr.push(index-1);}
+        if(nowcol<row-1){arr.push(index+1);}
+        if(nowrow>0&&nowcol>0){arr.push(index-1-row);}
+        if(nowrow<row-1&&nowcol>0){arr.push(index+row-1);}
+        if(nowrow>0&&nowcol<row-1){arr.push(index+1-row);}
+        if(nowrow<row-1&&nowcol<row-1){arr.push(index+1+row);}
+        return arr;
+    },
+    is_finish:function(){
+        var tds=$(".showtable td");
+        var len=tds.length;
+        for(var i=0;i<len;i++){
+            var color=tds.eq(i).css("color");
+            var text=tds.eq(i).text();
+            if(text!=config.bom&&color!="rgb(0, 0, 0)"){
+                return false;
+            }
+        }
+       return true;
+    },
+    next:function(){
+        this.cache(config.step,$(".time").text());
+        var maxrow=Math.floor($(".show-container").width()/config.width);
+        var row=config.row;
+        config.row=row<maxrow?++row:row;
+        config.step++;
+        $(".score").text(config.step);
+        this.start();
+  
+    },
+    cache:function(step,time){
+      var old=localStorage.getItem("game_sl_"+step);
+      if(!time){return old;}
+      if(!old||time<parseInt(old)){
+          localStorage.setItem("game_sl_"+step,time);
+      }
+    },
+    async:function(fn){
+        setTimeout(function(){
+            fn&&fn();
+        },0)
+    }, 
+    //let me see see!
+    letmess:function(index){
+        $(".showtable td").eq(index).css({
+           color:"black",
+       })
+        var near=fun.get_near(index);
+        near.forEach(function(item){
+            $(".showtable td").eq(item).css({
+                color:"black",
+            })
+        })
+    },
+    default_click:function(){
+        var tds=$(".showtable td");
+        var len=tds.length;
+        for(var i=0;i<len;i++){
+            if(tds.eq(i).text()!=config.bom){
+                this.letmess(i);
+                break;
+            }
+        }
+    }
+}
+fun.start();
+
+
+
+if(config.debug==false){
+    $("body").on("contextmenu",function(e){
+        return false;
+    })
+    $("body").on("keydown",function(e){
+        var code=e.keyCode;
+        if(code==123){
+            return false;
+        }
+    })
+}
+
+$(".start").click(function(){
+    config.step=1;
+    config.row=6;
+    fun.start();
+})
+function controller(){
+$(".showtable td").on("click",function(){
+   if($(this).css("color")=="rgb(0, 0, 0)"||config.gameover){return false;}
+   var index=parseInt($(this).attr("index"));
+   var text=$(this).text();
+   $(this).css({
+       color:"black",
+   })
+   if(text==config.bom){
+       fun.stop();
+       config.gameover=true;
+       fun.async(function(){
+        alert("游戏结束")
+       })
+   }else{
+      fun.letmess(index);
+      if(fun.is_finish()){
+          fun.next();
+      }
+   }
+})
+}//controller
+controller();
+
+</script>
