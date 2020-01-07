@@ -1,46 +1,18 @@
 <!DOCTYPE html>
-<html lang="zn-ch">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>smallJS's DEMO</title>
-<link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
-<style>
-.gray{color:#ddd;}	
-.mypic img{width:200px;margin:3px;}
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+<title>vue-myarea测试</title>
 </head>
-<body class="container">
-
-<ul class="nav nav-tabs">
-  <li><a href="/">离线笔记应用</a></li>
-  <li class="active"><a href="/smalljs.html">smallJS's DEMO</a></li>
-  <li><a href="./myarea.html">vue-myarea</a></li>
-</ul>
-
-<div class="row"><h1>生成日历</h1></div>
-<div class="row mytable"></div>
-
-<div class="row">
-	<h1>日期选择器</h1>
+<body>
+<div id="app">
+<h2>vue-myarea测试</h2>
+<h4>你选择的是：</h4>
+<p>{{msg}}</p>
+<myarea @select="haha"></myarea>
+<p>返回的json是:<br/>{{json}}</p>
 </div>
-
-<div class="show"></div>
-
-
-
-<script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>	
-<script src="./js/get_calendar.js"></script>
-<script src="./js/selectDay.js"></script>
+<script src="./js/index.js"></script>	
 </body>
 </html>
-
-<script>
-//生成日历
-var str=get_calendar();
-$(".mytable").html(str);	
-
-//日期选择器
-$(".show").selectDay();
-
-</script>

@@ -8,4 +8,4 @@
 
 ### 以上可访问 [网址](https://tansuo1989.github.io/ "马上访问")
 
-* demo 各种 js 的 demo
+* demo  vue.js 地区选择器
